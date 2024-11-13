@@ -1,0 +1,458 @@
+<html><head><base href="/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beb Card Collection Game</title>
+<style>
+body {
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 50%, #80deea 100%);
+    position: relative;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+h1 {
+    color: #2c3e50;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin: 30px 0;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.pack {
+    position: relative;
+    cursor: pointer;
+    margin: 30px 0;
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.pack img {
+    width: 220px;
+    height: auto;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+}
+
+.rarity {
+    font-weight: bold;
+    margin-top: 15px;
+    font-size: 1.1em;
+    text-transform: uppercase;
+}
+
+.common { color: #7f8c8d; }
+.uncommon { color: #27ae60; }
+.epic { color: #f39c12; }
+.legendary { 
+    color: #e74c3c;
+    text-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+}
+.giga { 
+    color: #ff0066;
+    text-shadow: 0 0 5px rgba(255, 0, 102, 0.3);
+}
+
+#collection-status {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.rarity-button {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: all 0.3s ease;
+    margin: 15px 0;
+    font-size: 1.1em;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.rarity-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.filter-btn.all {
+    background: #fff;
+    color: #333;
+}
+
+.filter-btn.common {
+    background: #7f8c8d;
+    color: white;
+}
+
+.filter-btn.uncommon {
+    background: #27ae60;
+    color: white;
+}
+
+.filter-btn.epic {
+    background: #f39c12;
+    color: white;
+}
+
+.filter-btn.legendary {
+    background: #e74c3c;
+    color: white;
+}
+
+.filter-btn.giga {
+    background: linear-gradient(45deg, #ff0066, #ff3399);
+    color: white;
+}
+
+.filter-btn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.filter-btn.active {
+    box-shadow: 0 0 0 2px #000;
+}
+
+.card.hidden {
+    display: none;
+}
+
+.rarity-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    max-width: 400px;
+    width: 90%;
+}
+
+.rarity-list {
+    text-align: left;
+    padding: 0;
+    list-style: none;
+}
+
+.rarity-list li {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #666;
+    background: rgba(0,0,0,0.1);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: rgba(0,0,0,0.2);
+    transform: scale(1.1);
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+.card-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    max-width: 90%;
+    text-align: center;
+}
+
+.card-modal img {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.card-modal .rarity {
+    font-size: 1.5em;
+    margin-top: 15px;
+}
+
+@keyframes cardReveal {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.card {
+    animation: cardReveal 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Beb Card Collection</h1>
+    <div id="collection-status">Click the pack to get new Bebs!</div>
+    
+    <button class="rarity-button" id="show-rarity">Show Rarity Chances</button>
+    
+    <div class="filter-buttons">
+        <button class="filter-btn all active" data-rarity="all">All Bebs</button>
+        <button class="filter-btn common" data-rarity="common">Common</button>
+        <button class="filter-btn uncommon" data-rarity="uncommon">Uncommon</button>
+        <button class="filter-btn epic" data-rarity="epic">Epic</button>
+        <button class="filter-btn legendary" data-rarity="legendary">Legendary</button>
+        <button class="filter-btn giga" data-rarity="giga">Giga</button>
+    </div>
+
+    <div class="pack" id="beb-pack">
+        <img src="Beb Pack.png" alt="A minimalist drawing of three grey rocks on a pale yellow background, with the letters BEB written above" width="220" height="150">
+    </div>
+
+    <div class="card-grid" id="collection">
+        <!-- Cards will be added here dynamically -->
+    </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="rarity-modal" id="rarity-modal">
+    <span class="modal-close" id="close-modal">&times;</span>
+    <h2>Rarity Chances</h2>
+    <ul class="rarity-list">
+        <li class="common">Common Beb: 60%</li>
+        <li class="uncommon">Uncommon Beb: 25%</li>
+        <li class="epic">Epic Beb: 10%</li>
+        <li class="legendary">Legendary Beb: 2.5%</li>
+        <li class="legendary">Legendary I Beb: 1.2%</li>
+        <li class="legendary">Legendary II Beb: 0.5%</li>
+        <li class="legendary">Legendary III Beb: 0.3%</li>
+        <li class="legendary">Legendary IIII Beb: 0.15%</li>
+        <li class="giga">Giga Beb: 0.05%</li>
+    </ul>
+</div>
+
+<div class="card-modal" id="card-modal">
+    <span class="modal-close" id="close-card-modal">&times;</span>
+    <img id="modal-card-image">
+    <div id="modal-card-rarity" class="rarity"></div>
+</div>
+
+<script>
+const cards = [
+    { name: "Common Beb", rarity: "common", src: "Common Beb.png", chance: 60 },
+    { name: "Uncommon Beb", rarity: "uncommon", src: "Uncommon Beb.png", chance: 25 },
+    { name: "Epic Beb", rarity: "epic", src: "Epic Beb.png", chance: 10 },
+    { name: "Legendary Beb", rarity: "legendary", src: "Legendary Beb.png", chance: 2.5 },
+    { name: "Legendary I Beb", rarity: "legendary", src: "Legendary I Beb.png", chance: 1.2 },
+    { name: "Legendary II Beb", rarity: "legendary", src: "Legendary II Beb.png", chance: 0.5 },
+    { name: "Legendary III Beb", rarity: "legendary", src: "Legendary III Beb.png", chance: 0.3 },
+    { name: "Legendary IIII Beb", rarity: "legendary", src: "Legendary IIII Beb.png", chance: 0.15 },
+    { name: "Giga Beb", rarity: "giga", src: "Giga Beb.png", chance: 0.05 }
+];
+
+const collection = new Set();
+
+document.getElementById('beb-pack').addEventListener('click', function() {
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+    let chosen = cards[0];
+
+    for (const card of cards) {
+        cumulative += card.chance;
+        if (roll <= cumulative) {
+            chosen = card;
+            break;
+        }
+    }
+
+    collection.add(chosen.name);
+    
+    const cardElement = document.createElement('div');
+    cardElement.className = `card ${chosen.rarity}`;
+    cardElement.innerHTML = `
+        <img src="${chosen.src}" alt="${chosen.name}" width="200" height="300">
+        <div class="rarity ${chosen.rarity}">${chosen.name}</div>
+    `;
+    
+    cardElement.addEventListener('click', () => showCardModal(chosen));
+    
+    document.getElementById('collection').prepend(cardElement);
+    
+    cardElement.style.animation = 'float 0.5s ease-out';
+    
+    updateCollectionStatus();
+});
+
+function showCardModal(card) {
+    const cardModal = document.getElementById('card-modal');
+    const modalImage = document.getElementById('modal-card-image');
+    const modalRarity = document.getElementById('modal-card-rarity');
+    
+    modalImage.src = card.src;
+    modalImage.alt = card.name;
+    modalRarity.className = `rarity ${card.rarity}`;
+    modalRarity.textContent = card.name;
+    
+    cardModal.style.display = 'block';
+    overlay.style.display = 'block';
+}
+
+function hideModals() {
+    document.getElementById('rarity-modal').style.display = 'none';
+    document.getElementById('card-modal').style.display = 'none';
+    overlay.style.display = 'none';
+}
+
+document.getElementById('show-rarity').addEventListener('click', () => {
+    document.getElementById('rarity-modal').style.display = 'block';
+    overlay.style.display = 'block';
+});
+
+document.getElementById('close-modal').addEventListener('click', hideModals);
+document.getElementById('close-card-modal').addEventListener('click', hideModals);
+overlay.addEventListener('click', hideModals);
+
+// Add click handlers to existing cards
+document.querySelectorAll('.card').forEach(card => {
+    const cardName = card.querySelector('.rarity').textContent;
+    const cardData = cards.find(c => c.name === cardName);
+    if (cardData) {
+        card.addEventListener('click', () => showCardModal(cardData));
+    }
+});
+
+function updateCollectionStatus() {
+    const total = cards.length;
+    const collected = collection.size;
+    document.getElementById('collection-status').textContent = 
+        `Collection: ${collected}/${total} Bebs Found!`;
+}
+
+// Add filter functionality
+document.querySelector('.filter-buttons').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('filter-btn')) return;
+    
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    
+    const selectedRarity = e.target.dataset.rarity;
+    const cards = document.querySelectorAll('.card');
+    
+    cards.forEach(card => {
+        if (selectedRarity === 'all') {
+            card.classList.remove('hidden');
+        } else {
+            if (card.classList.contains(selectedRarity)) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        }
+    });
+});
+</script>
+</body></html>
